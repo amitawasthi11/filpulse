@@ -31,7 +31,8 @@ app.use(helmet());
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    "https://filpulse-rfeork53u-amitawasthi11s-projects.vercel.app"
+    "https://filpulse.vercel.app",
+    "https://filpulse-39x4.vercel.app"
   ],
   credentials: true
 }));
