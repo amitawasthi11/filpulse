@@ -1,0 +1,59 @@
+version: '3.9'
+
+services:
+  # ── MySQL Database ─────────────────────────────
+  db:
+    image: mysql:8.0
+    container_name: finpulse-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-finpulse123}
+      MYSQL_DATABASE: finpulse_db
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Backend API ────────────────────────────────
+  backend:
+    build: ./backend
+    container_name: finpulse-backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: ${DB_PASSWORD:-finpulse123}
+      DB_NAME: finpulse_db
+      JWT_SECRET: ${JWT_SECRET:-change_this_in_production}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-change_this_refresh_secret}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      NEWS_API_KEY: ${NEWS_API_KEY}
+      FINNHUB_API_KEY: ${FINNHUB_API_KEY}
+      CLIENT_URL: http://localhost
+    ports:
+      - "5000:5000"
+
+  # ── Frontend ───────────────────────────────────
+  frontend:
+    build: ./frontend
+    container_name: finpulse-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+
+volumes:
+  db_data:

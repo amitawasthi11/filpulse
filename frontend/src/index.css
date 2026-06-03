@@ -1,0 +1,134 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================
+   FinPulse Design System — Global Styles
+   Bloomberg × Zerodha × TradingView Inspired
+   ============================================ */
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #0a0b0f;
+    color: #e4e8f0;
+    overflow-x: hidden;
+  }
+
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: #10121a; }
+  ::-webkit-scrollbar-thumb { background: #2a2f45; border-radius: 8px; }
+  ::-webkit-scrollbar-thumb:hover { background: #00d4aa55; }
+}
+
+@layer components {
+  /* Glass card */
+  .glass {
+    background: rgba(16, 18, 26, 0.7);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .glass-hover {
+    transition: all 0.2s ease;
+  }
+  .glass-hover:hover {
+    background: rgba(22, 25, 36, 0.85);
+    border-color: rgba(0, 212, 170, 0.2);
+    transform: translateY(-1px);
+  }
+
+  /* Accent glow */
+  .glow-accent {
+    box-shadow: 0 0 20px rgba(0, 212, 170, 0.15), 0 0 40px rgba(0, 212, 170, 0.05);
+  }
+
+  /* Shimmer skeleton */
+  .skeleton {
+    background: linear-gradient(90deg, #161924 25%, #1c2030 50%, #161924 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  /* Sentiment badges */
+  .badge-bullish {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium;
+    background: rgba(0, 196, 140, 0.15);
+    color: #00c48c;
+    border: 1px solid rgba(0, 196, 140, 0.25);
+  }
+  .badge-bearish {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium;
+    background: rgba(255, 75, 110, 0.15);
+    color: #ff4b6e;
+    border: 1px solid rgba(255, 75, 110, 0.25);
+  }
+  .badge-neutral {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium;
+    background: rgba(123, 134, 168, 0.15);
+    color: #7b86a8;
+    border: 1px solid rgba(123, 134, 168, 0.25);
+  }
+
+  /* Input */
+  .input-dark {
+    @apply w-full bg-surface-700 border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white placeholder-white/30;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .input-dark:focus {
+    outline: none;
+    border-color: rgba(0, 212, 170, 0.5);
+    box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.1);
+  }
+
+  /* Button variants */
+  .btn-primary {
+    @apply flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg font-medium text-sm;
+    background: linear-gradient(135deg, #00d4aa, #00b892);
+    color: #0a0b0f;
+    transition: all 0.2s;
+  }
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(0, 212, 170, 0.25);
+  }
+  .btn-primary:active { transform: translateY(0); }
+
+  .btn-ghost {
+    @apply flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium;
+    color: rgba(228, 232, 240, 0.7);
+    transition: all 0.15s;
+  }
+  .btn-ghost:hover {
+    background: rgba(255,255,255,0.06);
+    color: #e4e8f0;
+  }
+
+  /* Stat card */
+  .stat-card {
+    @apply glass rounded-xl p-5 glass-hover;
+  }
+
+  /* Number ticker */
+  .ticker-up   { color: #00c48c; }
+  .ticker-down { color: #ff4b6e; }
+  .ticker-flat { color: #7b86a8; }
+}
+
+/* Grid bg pattern */
+.bg-grid {
+  background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='rgba(255,255,255,0.025)' fill-opacity='1'%3E%3Cpath d='M0 0h40v1H0zM0 0v40h1V0z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Chart.js overrides */
+canvas { border-radius: 0 !important; }
+
+/* Framer motion */
+.page-transition {
+  animation: fadeUp 0.35s ease-out both;
+}
