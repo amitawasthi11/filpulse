@@ -2,7 +2,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: 'https://filpulse.onrender.com/api',
   timeout: 30_000,
   headers: { 'Content-Type': 'application/json' },
 })
@@ -64,7 +64,7 @@ api.interceptors.response.use(
       }
 
       try {
-        const { data } = await axios.post('/api/auth/refresh', { refreshToken })
+        const { data } = await axios.post('https://filpulse.onrender.com/api/auth/refresh', { refreshToken })
         const newToken = data.data.accessToken
 
         // Update stored token
