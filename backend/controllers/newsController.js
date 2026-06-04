@@ -3,6 +3,9 @@ const axios = require('axios');
 const { pool } = require('../config/database');
 const { analyzeWithAI } = require('../utils/aiService');
 
+
+
+
 // Fetch news from NewsAPI
 const fetchNewsFromAPI = async (symbols) => {
   const query = symbols.join(' OR ');
@@ -102,57 +105,146 @@ const fetchAndStoreNews = async (req, res, next) => {
       'SELECT symbol, name FROM portfolio WHERE user_id = ?',
       [req.user.id]
     );
-
     if (portfolioAssets.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'Add assets to your portfolio first',
-      });
-    }
+  return res.status(400).json({
+    success: false,
+    message: 'Add assets to your portfolio first',
+  });
+}
+  const [watchlistAssets] = await pool.query(
+  'SELECT symbol, name FROM watchlist WHERE user_id = ?',
+  [req.user.id]
+);
 
+let portfolioNews = [];
+let watchlistNews = [];
+let financeNews = [];
+const portfolioQueries = portfolioAssets
+  .slice(0, 3)
+  .map(asset => `${asset.name} stock`);
+
+const portfolioRaw = await fetchNewsFromAPI(portfolioQueries);
+
+portfolioNews = portfolioRaw.map((a, i) => ({
+  external_id: `portfolio_${a.url?.slice(-50) || i}`,
+  title: a.title,
+  description: a.description,
+  content: a.content,
+  url: a.url,
+  image_url: a.urlToImage,
+  source: a.source?.name || 'NewsAPI',
+  author: a.author,
+  published_at: new Date(a.publishedAt),
+  symbols: portfolioAssets.map(a => a.symbol),
+}));
+
+
+
+
+
+
+
+if (watchlistAssets.length > 0) {
+  const watchlistQueries = watchlistAssets
+    .slice(0, 3)
+    .map(asset => `${asset.name} stock`);
+
+  const watchlistRaw = await fetchNewsFromAPI(watchlistQueries);
+
+  watchlistNews = watchlistRaw.map((a, i) => ({
+    external_id: `watchlist_${a.url?.slice(-50) || i}`,
+    title: a.title,
+    description: a.description,
+    content: a.content,
+    url: a.url,
+    image_url: a.urlToImage,
+    source: a.source?.name || 'NewsAPI',
+    author: a.author,
+    published_at: new Date(a.publishedAt),
+    symbols: watchlistAssets.map(a => a.symbol),
+  }));
+}
+
+
+
+const financeResponse = await axios.get(
+  'https://newsapi.org/v2/top-headlines',
+  {
+    params: {
+      category: 'business',
+      country: 'us',
+      pageSize: 10,
+      apiKey: process.env.NEWS_API_KEY
+    }
+  }
+);
+
+financeNews = financeResponse.data.articles.map((a, i) => ({
+  external_id: `finance_${i}`,
+  title: a.title,
+  description: a.description,
+  content: a.content,
+  url: a.url,
+  image_url: a.urlToImage,
+  source: a.source?.name || 'NewsAPI',
+  author: a.author,
+  published_at: new Date(a.publishedAt),
+  symbols: [],
+}));
+
+   
     const symbols = portfolioAssets.map((a) => a.symbol);
-    const symbolNames = portfolioAssets.map((a) => a.name);
-    let articles = [];
+  
+    let articles = [
+  ...portfolioNews,
+  ...watchlistNews,
+  ...financeNews
+];
+// Remove duplicate articles
+articles = [...new Map(
+  articles.map(article => [article.url, article])
+).values()];
+
 
     // Try NewsAPI first
-    try {
-      const stockQueries = symbolNames
-  .slice(0, 3)
-  .map(name => `${name} stock`);
+//     try {
+//       const stockQueries = symbolNames
+//   .slice(0, 3)
+//   .map(name => `${name} stock`);
 
-const rawArticles = await fetchNewsFromAPI(stockQueries);
-      articles = rawArticles.map((a, i) => ({
-        external_id: `newsapi_${a.url?.slice(-50) || i}`,
-        title: a.title,
-        description: a.description,
-        content: a.content,
-        url: a.url,
-        image_url: a.urlToImage,
-        source: a.source?.name || 'NewsAPI',
-        author: a.author,
-        published_at: new Date(a.publishedAt),
-        // symbols: symbols.filter((s) =>
-        //   (a.title + ' ' + (a.description || '')).toUpperCase().includes(s)
-        // ),
-        symbols: symbols,
+// const rawArticles = await fetchNewsFromAPI(stockQueries);
+//       articles = rawArticles.map((a, i) => ({
+//         external_id: `newsapi_${a.url?.slice(-50) || i}`,
+//         title: a.title,
+//         description: a.description,
+//         content: a.content,
+//         url: a.url,
+//         image_url: a.urlToImage,
+//         source: a.source?.name || 'NewsAPI',
+//         author: a.author,
+//         published_at: new Date(a.publishedAt),
+//         // symbols: symbols.filter((s) =>
+//         //   (a.title + ' ' + (a.description || '')).toUpperCase().includes(s)
+//         // ),
+//         symbols: symbols,
         
-      }));
-      console.log('PORTFOLIO SYMBOLS:', symbols);
-      console.log('PORTFOLIO NAMES:', symbolNames);
-      console.log('ARTICLES FETCHED:', articles.length);
-    } catch (newsApiErr) {
-      console.warn('NewsAPI failed, trying Finnhub:', newsApiErr.message);
+//       }));
+//       console.log('PORTFOLIO SYMBOLS:', symbols);
+//       console.log('PORTFOLIO NAMES:', symbolNames);
+//       console.log('ARTICLES FETCHED:', articles.length);
+//     } catch (newsApiErr) {
+//       console.warn('NewsAPI failed, trying Finnhub:', newsApiErr.message);
 
-      // Fallback to Finnhub for each stock symbol
-      for (const symbol of symbols.filter((s) => !['BTC', 'ETH', 'SOL'].includes(s)).slice(0, 3)) {
-        try {
-          const finnhubArticles = await fetchFinnhubNews(symbol);
-          articles.push(...finnhubArticles);
-        } catch (e) {
-          console.warn(`Finnhub failed for ${symbol}:`, e.message);
-        }
-      }
-    }
+//       // Fallback to Finnhub for each stock symbol
+//       for (const symbol of symbols.filter((s) => !['BTC', 'ETH', 'SOL'].includes(s)).slice(0, 3)) {
+//         try {
+//           const finnhubArticles = await fetchFinnhubNews(symbol);
+//           articles.push(...finnhubArticles);
+//         } catch (e) {
+//           console.warn(`Finnhub failed for ${symbol}:`, e.message);
+//         }
+//       }
+//     }
 
     // Store in DB (upsert)
     let savedCount = 0;
@@ -240,6 +332,7 @@ const analyzeNews = async (req, res, next) => {
     analysis.sentiment,
     analysis.confidence || 0.75
   ]
+
 );
 
     res.json({ success: true, data: { analysis } });
