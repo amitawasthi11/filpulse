@@ -66,7 +66,7 @@ export default function WatchlistPage() {
       api.get('/portfolio/watchlist').then((r) => r.data.data),
 
     // auto refresh every 10 sec
-    refetchInterval: 10000,
+    refetchInterval: false,
   })
 
   // ADD TO WATCHLIST

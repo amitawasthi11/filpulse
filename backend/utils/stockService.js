@@ -77,9 +77,9 @@ const searchStocks = async (query) => {
 
 // LIVE PRICE
 const getStockPrice = async (symbol) => {
-
+  // console.log("Fetching price for:", symbol);
+console.log("🔥 FETCHING:", symbol);
   try {
- console.log("Fetching price for:", symbol);
     const url =
       `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}`;
 
@@ -154,14 +154,16 @@ return {
 
   } catch (err) {
 
-    console.log(
-    "PRICE ERROR:",
+  console.log(
+    "🔥 PRICE ERROR:",
     symbol,
-    err.response?.data || err.message
+    err.response?.status,
+    err.response?.data,
+    err.message
   );
 
-    return null;
-  }
+  return null;
+}
 };
 
 module.exports = {

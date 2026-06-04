@@ -5,13 +5,35 @@ const { pool } = require('../config/database');
 const authenticate = async (req, res, next) => {
   console.log("AUTH HEADER:", req.headers.authorization);
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ success: false, message: 'Access token required' });
-    }
+    // const authHeader = req.headers.authorization;
+    // if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    //   return res.status(401).json({ success: false, message: 'Access token required' });
+    // }
 
-    const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // const token = authHeader.split(' ')[1];
+    const authHeader = req.headers.authorization;
+
+console.log("RAW HEADER:", JSON.stringify(authHeader));
+
+if (!authHeader) {
+  return res.status(401).json({
+    success: false,
+    message: 'Access token required'
+  });
+}
+
+const token = authHeader.startsWith('Bearer ')
+  ? authHeader.split(' ')[1]
+  : authHeader;
+
+console.log("TOKEN:", token);
+
+const decoded = jwt.verify(token, process.env.JWT_SECRET);
+console.log("DECODED:", decoded);
+
+
+
+    // const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     // Fetch fresh user data
     const [rows] = await pool.query(
