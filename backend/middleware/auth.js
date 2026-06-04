@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const { pool } = require('../config/database');
 
 const authenticate = async (req, res, next) => {
+  console.log("AUTH HEADER:", req.headers.authorization);
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {

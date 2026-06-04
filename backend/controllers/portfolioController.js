@@ -238,7 +238,7 @@ const deleteAsset = async (req, res, next) => {
 // GET /api/portfolio/watchlist
 const getWatchlist = async (req, res, next) => {
   try {
-
+    console.log("WATCHLIST API HIT");
     const [items] = await pool.query(
       `SELECT *
        FROM watchlist

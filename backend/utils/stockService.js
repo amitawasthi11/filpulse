@@ -79,11 +79,21 @@ const searchStocks = async (query) => {
 const getStockPrice = async (symbol) => {
 
   try {
-
+ console.log("Fetching price for:", symbol);
     const url =
       `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}`;
 
     const response = await axios.get(url);
+    // console.log("Yahoo response:", response.data);
+
+if (
+  !response.data?.chart?.result ||
+  !response.data.chart.result.length
+) {
+  throw new Error(
+    `No market data for ${symbol}`
+  );
+}
 
     const result =
       response.data.chart.result[0];
@@ -144,7 +154,11 @@ return {
 
   } catch (err) {
 
-    console.log('PRICE ERROR:', err.message);
+    console.log(
+    "PRICE ERROR:",
+    symbol,
+    err.response?.data || err.message
+  );
 
     return null;
   }
