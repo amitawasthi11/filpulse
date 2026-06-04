@@ -257,9 +257,9 @@ const getWatchlist = async (req, res, next) => {
 
           return {
             ...item,
-            current_price: live?.current_price || 0,
-            change_amount: live?.change_amount || 0,
-            change_percent: live?.change_percent || 0,
+           current_price: live?.current_price ?? item.current_price ?? null,
+           change_amount: live?.change_amount ?? 0,
+           change_percent: live?.change_percent ?? 0,
           };
 
         } catch (err) {
