@@ -2,10 +2,9 @@
 
 > A full-stack, production-ready finance dashboard that fetches live news, summarizes it with AI, and predicts market sentiment for your portfolio.
 
-Built by an MCA student as a placement-ready showcase project.
 
 check it here : https://filpulse.vercel.app/login
-
+backend : https://filpulse.onrender.com
 ---
 
 ## ✨ Features
